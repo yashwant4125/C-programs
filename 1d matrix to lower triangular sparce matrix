@@ -1,0 +1,36 @@
+#include<stdio.h>
+#include<math.h>
+#define A(x,y) for(x=0;x<y;x++)
+int main(){
+	int s[20][20],d[100],i=0,j=0,sr,c=0,sc,dr;
+	printf("Enter size of 1D array matrix to obtain its sparce matrix: ");
+	scanf("%d",&dr);
+	printf("Enter %d 1D array matrix elements: ",dr);
+	A(i,dr)
+	scanf("%d",&d[i]);
+	printf("\nThe 1D array matrix is: ");
+	A(i,dr)
+	printf("%d ",d[i]);
+	sr=(round(sqrt(8*dr)-1))/2;
+	i=0;
+	while(c<dr){
+		while(j<=i){
+			s[i][j]=d[c];
+			j++;
+			c++;
+		}
+		while(j<sr){
+			s[i][j]=0;
+			j++;
+		}
+		i++;
+		j=0;
+	}
+	sc=sr;
+	printf("\nThe lower triangular sparce matrix is\n");
+	A(i,sr){
+		A(j,sc)
+		printf("%d\t",s[i][j]);
+		printf("\n");
+	}
+}
