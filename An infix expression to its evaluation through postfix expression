@@ -1,34 +1,36 @@
 #include<stdio.h>
-#include<string.h>
 #include<math.h>
+#include<string.h>
 #define MAX 50
-#define MAXi 20
 char stack[MAX];
 int top=0;
+char postfix[50];
 void push(char val){
 	stack[top++]=val;	
 }
 char pop(){
 	return stack[--top];
 }
-int stacki[MAXi];
-int topi=0;
-void pushi(int vali){
-	stacki[topi++]=vali;	
-}
-int popi(){
-	return stacki[--topi];
-}
-int main(){
-	char infix[50],postfix[50],ch,y,z,num[]={'0','1','2','3','4','5','6','7','8','9'};
+int priority(char y){
 	enum sign{add=1,sub=1,div=2,mul=2,exp=3};	
-	int i,j,k=0,l,x,sizep,val1,val2,result;
-	printf("Enter a infix expression: ");
-	scanf("%s",infix);
-	printf("\nThe infix expression is: %s\n",infix);
-	l=strlen(infix);
-	for(i=0;i<l;i++){
-		ch=infix[i];
+	if(y=='+')
+	y=add;
+	else if(y=='-')
+	y=sub;
+	else if(y=='*')
+	y=mul;
+	else if(y=='/')
+	y=div;
+	else if(y=='^')
+	y=exp;
+	return y;
+}
+void infix_to_postfix(char infix[]){
+	char ch,y,num[]={'0','1','2','3','4','5','6','7','8','9'};
+	enum sign{add=1,sub=1,div=2,mul=2,exp=3};	
+	int i=0,j,k=0,x;
+	ch=infix[i];
+	while(ch!='\0'){
 		if(ch=='('){
 			push(ch);
 		}
@@ -51,16 +53,7 @@ int main(){
 			else{
 			while(stack[x]!='('){
 				y=stack[x];
-				if(y=='+')
-				y=add;
-				else if(y=='-')
-				y=sub;
-				else if(y=='*')
-				y=mul;
-				else if(y=='/')
-				y=div;
-				else if(y=='^')
-				y=exp;
+				y=priority(y);
 				if(y>=add){
 					postfix[k]=pop();			
 					k++;
@@ -89,16 +82,7 @@ int main(){
 			else{
 			while(stack[x]!='('){
 				y=stack[x];
-				if(y=='+')
-				y=add;
-				else if(y=='-')
-				y=sub;
-				else if(y=='*')
-				y=mul;
-				else if(y=='/')
-				y=div;
-				else if(y=='^')
-				y=exp;
+				y=priority(y);
 				if(y>=sub){
 					postfix[k]=pop();			
 					k++;
@@ -127,16 +111,7 @@ int main(){
 			else{
 			while(stack[x]!='('){
 				y=stack[x];
-				if(y=='+')
-				y=add;
-				else if(y=='-')
-				y=sub;
-				else if(y=='*')
-				y=mul;
-				else if(y=='/')
-				y=div;
-				else if(y=='^')
-				y=exp;
+				y=priority(y);
 				if(y>=div){
 					postfix[k]=pop();			
 					k++;
@@ -165,16 +140,7 @@ int main(){
 			else{
 			while(stack[x]!='('){
 				y=stack[x];
-				if(y=='+')
-				y=add;
-				else if(y=='-')
-				y=sub;
-				else if(y=='*')
-				y=mul;
-				else if(y=='/')
-				y=div;
-				else if(y=='^')
-				y=exp;
+				y=priority(y);
 				if(y>=mul){
 					postfix[k]=pop();			
 					k++;
@@ -203,16 +169,7 @@ int main(){
 			else{
 			while(stack[x]!='('){
 				y=stack[x];
-				if(y=='+')
-				y=add;
-				else if(y=='-')
-				y=sub;
-				else if(y=='*')
-				y=mul;
-				else if(y=='/')
-				y=div;
-				else if(y=='^')
-				y=exp;
+				y=priority(y);
 				if(y>=exp){
 					postfix[k]=pop();			
 					k++;
@@ -238,6 +195,7 @@ int main(){
 			}
 			pop();
 		}
+		ch=infix[++i];
 	}
 	if(top>0){
 		x=top;
@@ -247,16 +205,15 @@ int main(){
 			x--;
 		}
 	}
-	sizep=k;
-	printf("\nThe postfix expression is: ");
-	for(k=0;k<sizep;k++)
-	printf("%c",postfix[k]);
-	i=0;
+}
+void postfix_evaluation(){
+	char ch;
+	int i=0,val1,val2,result;
 	ch=postfix[i];
 	while(ch!='\0'){
 		if(ch=='+' || ch=='-' || ch=='/' || ch=='*' || ch=='^'){
-			val2=popi();
-			val1=popi();
+			val2=pop();
+			val1=pop();
 			switch(ch){
 				case '+': result=val1+val2; break;
 				case '-': result=val1-val2; break;
@@ -264,12 +221,21 @@ int main(){
 				case '*': result=val1*val2; break;
 				case '^': result=pow(val1,val2); break;
 			}
-			pushi(result);
+			push(result);
 		}
 		else
-		pushi((int)ch-48);
+		push((int)ch-48);
 		ch=postfix[++i];				
 	}
-	printf("\n\nThe result is: %d",popi());
 }
-
+int main(){
+	char infix[50];
+	printf("Enter an infix expression: ");
+	scanf("%s",infix);
+	printf("\nThe infix expression is: %s\n",infix);
+	infix_to_postfix(infix);
+	printf("\nThe postfix expression is: ");
+	printf("%s",postfix);
+	postfix_evaluation();
+	printf("\n\nThe result is: %d",pop());
+}
