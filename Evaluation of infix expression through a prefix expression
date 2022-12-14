@@ -1,0 +1,268 @@
+#include<stdio.h>
+#include<math.h>
+#include<string.h>
+#define MAX 50
+char infix_in[50],r_infix[50],p_r_infix[50],prefix[50];
+char stack[MAX];
+int top=0;
+void push(char val){
+	stack[top++]=val;	
+}
+char pop(){
+	return stack[--top];
+}
+void rinfix(){
+	int i=0,l,ch;
+	l=strlen(infix_in)-1;
+	while(l>=0){
+		ch=infix_in[l--];
+		if(ch=='('){
+			r_infix[i++]=')';
+		}
+		if(ch==')'){
+			r_infix[i++]='(';
+		}
+		if(ch!='(' && ch!=')'){
+			r_infix[i++]=ch;
+		}
+	}	
+}
+int priority(char y){
+	enum sign{add=1,sub=1,div=2,mul=2,exp=3};	
+	if(y=='+')
+	y=add;
+	else if(y=='-')
+	y=sub;
+	else if(y=='*')
+	y=mul;
+	else if(y=='/')
+	y=div;
+	else if(y=='^')
+	y=exp;
+	return y;
+}
+void post_r_infix(){
+	char ch,y,z,num[]={'0','1','2','3','4','5','6','7','8','9'};
+	enum sign{add=1,sub=1,div=2,mul=2,exp=3};	
+	int i=0,j,k=0,x,sizep;
+	ch=r_infix[i];
+	while(ch!='\0'){
+		if(ch=='('){
+			push(ch);
+		}
+		for(j=0;j<10;j++){
+			if(ch==num[j]){
+		 		p_r_infix[k]=ch;		 		
+		 		k++;
+		 		break;
+			}
+		}
+		if(ch=='+'){
+			if(top==0){
+				push('+');
+			}
+			else{
+			x=top-1;
+			if(stack[x]=='('){
+				push('+');
+			}
+			else{
+			while(stack[x]!='('){
+				y=stack[x];
+				y=priority(y);
+				if(y>add){
+					p_r_infix[k]=pop();			
+					k++;
+				}
+				else{
+					push('+');
+					break;
+				}
+				x--;
+			}	
+			if(stack[x]=='('){
+				push('+');
+			}	
+			}
+			}			
+		}
+		else if(ch=='-'){
+			if(top==0){
+				push('-');
+			}
+			else{
+			x=top-1;
+			if(stack[x]=='('){
+				push('-');
+			}
+			else{
+			while(stack[x]!='('){
+				y=stack[x];
+				y=priority(y);
+				if(y>sub){
+					p_r_infix[k]=pop();			
+					k++;
+				}
+				else{
+					push('-');
+					break;
+				}
+				x--;
+			}	
+			if(stack[x]=='('){
+				push('-');
+			}	
+			}
+			}
+		}
+		else if(ch=='/'){
+			if(top==0){
+				push('/');
+			}
+			else{
+			x=top-1;
+			if(stack[x]=='('){
+				push('/');
+			}
+			else{
+			while(stack[x]!='('){
+				y=stack[x];
+				y=priority(y);
+				if(y>div){
+					p_r_infix[k]=pop();			
+					k++;
+				}
+				else{
+					push('/');
+					break;
+				}
+				x--;
+			}	
+			if(stack[x]=='('){
+				push('/');
+			}	
+			}
+			}
+		}
+		else if(ch=='*'){
+			if(top==0){
+				push('*');
+			}
+			else{
+			x=top-1;
+			if(stack[x]=='('){
+				push('*');
+			}
+			else{
+			while(stack[x]!='('){
+				y=stack[x];
+				y=priority(y);
+				if(y>mul){
+					p_r_infix[k]=pop();			
+					k++;
+				}
+				else{
+					push('*');
+					break;
+				}
+				x--;
+			}	
+			if(stack[x]=='('){
+				push('*');
+			}	
+			}
+			}
+		}
+		else if(ch=='^'){
+			if(top==0){
+				push('^');
+			}
+			else{
+			x=top-1;
+			if(stack[x]=='('){
+				push('^');
+			}
+			else{
+			while(stack[x]!='('){
+				y=stack[x];
+				y=priority(y);
+				if(y>=exp){
+					p_r_infix[k]=pop();			
+					k++;
+				}
+				else{
+					push('^');
+					break;
+				}
+				x--;
+			}	
+			if(stack[x]=='('){
+				push('^');
+			}	
+			}
+			}
+		}
+		if(ch==')'){
+			x=top-1;
+			while(stack[x]!='('){
+				p_r_infix[k]=pop();			
+				k++;
+				x--;
+			}
+			pop();
+		}
+		ch=r_infix[++i];
+	}
+	if(top>0){
+		x=top;
+		while(x!=0){
+			p_r_infix[k]=pop();
+			k++;
+			x--;
+		}
+	}
+	sizep=k;
+}
+void r_p_r_infix(){
+	int i=0,l,ch;
+	l=strlen(p_r_infix)-1;
+	while(l>=0){
+		prefix[i++]=p_r_infix[l--];		
+	}
+}
+void prefix_evaluation(){
+	char ch;
+	int i,val1,val2,result;
+	i=strlen(prefix)-1;
+	while(i>=0){
+		ch=prefix[i--];
+		if(ch=='+' || ch=='-' || ch=='/' || ch=='*' || ch=='^'){
+			val1=pop();
+			val2=pop();
+			switch(ch){
+				case '+': result=val1+val2; break;
+				case '-': result=val1-val2; break;
+				case '/': result=val1/val2; break;
+				case '*': result=val1*val2; break;
+				case '^': result=pow(val1,val2); break;
+			}
+			push(result);
+		}
+		else{
+			push((int)ch-48);
+		}
+	}
+}
+int main(){
+	printf("Enter a infix expression: ");
+	scanf("%s",infix_in);
+	printf("\nThe infix expression is: %s\n",infix_in);
+	rinfix();	
+	printf("\nThe reversed infix expression is: %s\n",r_infix);
+	post_r_infix();
+	printf("\nThe postfix of reversed infix expression is: %s\n",p_r_infix);
+	r_p_r_infix();
+	printf("\nThe prefix expression is: %s\n",prefix);
+	prefix_evaluation();
+	printf("\nThe result is: %d",pop());
+}
